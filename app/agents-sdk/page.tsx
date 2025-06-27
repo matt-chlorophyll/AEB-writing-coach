@@ -53,6 +53,21 @@ export default function AgentsSDKPage() {
 
       let buffer = "";
       let done = false;
+      let timeoutId: NodeJS.Timeout | null = null;
+
+      // Set up a timeout to detect if analysis gets stuck
+      const analysisTimeout = setTimeout(() => {
+        console.warn("Analysis appears to be stuck, attempting to reset");
+        setPhase('input');
+        setMessages(prev => {
+          const newMessages = [...prev];
+          const lastMessage = newMessages[newMessages.length - 1];
+          if (lastMessage && lastMessage.role === "assistant") {
+            lastMessage.content += "\n\n⚠️ Analysis timed out. Please try again with a shorter text or try rephrasing your request.";
+          }
+          return newMessages;
+        });
+      }, 60000); // 60 second timeout
 
       while (!done) {
         const { value, done: readerDone } = await reader.read();
@@ -89,6 +104,7 @@ export default function AgentsSDKPage() {
                     });
                   } else if (parsed.type === "analysis_complete") {
                     // Analysis is complete, enable rewrite button
+                    clearTimeout(analysisTimeout);
                     setAnalysisResult(parsed.analysisResult);
                     setPhase('ready');
                   }
@@ -100,7 +116,11 @@ export default function AgentsSDKPage() {
           }
         }
       }
+      
+      // Always clear timeout when done
+      clearTimeout(analysisTimeout);
     } catch (error) {
+      clearTimeout(analysisTimeout);
       console.error("Analysis error:", error);
       setMessages(prev => {
         const newMessages = [...prev];

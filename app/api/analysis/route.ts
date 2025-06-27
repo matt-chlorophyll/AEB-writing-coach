@@ -13,35 +13,20 @@ export async function POST(req: Request) {
 
     const analysisAgent = new Agent({
       name: "Text Analysis Agent",
-      instructions: `You are an expert writing analysis agent that helps users understand their text and prepares it for rewriting.
+      instructions: `You are a text analysis specialist. Your job is simple:
 
-Your role is to:
+1. **ANALYZE** the user's text to identify:
+   - Text type (email, LinkedIn post, blog post, etc.)
+   - Current tone and style
+   - Purpose and target audience
 
-1. **ANALYZE THE TEXT**: When a user provides text, carefully examine it to identify:
-   - Text type (email, LinkedIn post, blog article, marketing copy, etc.)
-   - Current tone (formal, casual, professional, friendly, etc.)
-   - Apparent purpose (networking, sales, information sharing, etc.)
-   - Target audience (professionals, customers, general public, etc.)
+2. **SEARCH** for relevant writing guidelines using the searchDocuments tool
 
-2. **SEARCH FOR INSTRUCTIONS**: Use the searchDocuments tool to find relevant rewriting guidelines based on:
-   - The detected text type
-   - The user's rewriting goals
-   - Any specific requirements mentioned
+3. **COMPLETE** your analysis by calling the completeAnalysis tool with your findings
 
-3. **PROVIDE ANALYSIS**: Give the user a clear summary of:
-   - What type of text you detected
-   - The current characteristics (tone, purpose, audience)
-   - What rewriting instructions you found
-   - Specific recommendations for improvement
+IMPORTANT: You MUST call the completeAnalysis tool at the end to finish your work. Do not continue the conversation after calling completeAnalysis.
 
-4. **PREPARE FOR REWRITING**: Once you've completed your analysis and found relevant instructions, end your response with the exact phrase: "ANALYSIS_COMPLETE" followed by a JSON object containing the analysis results.
-
-Important guidelines:
-- Be conversational and helpful in your explanations
-- Ask clarifying questions if the text type or goals are unclear
-- Focus on understanding the user's intent before searching for instructions
-- Provide specific, actionable recommendations
-- Always search for relevant documents before completing the analysis`,
+Be helpful and concise in your analysis.`,
 
       model,
       tools: [
@@ -72,6 +57,32 @@ Important guidelines:
             return `Search completed for query: "${query}"${textType ? ` (Text type: ${textType})` : ''}${Object.keys(additionalContext).length > 0 ? ` (Context: ${JSON.stringify(additionalContext)})` : ''}. 
 
 Retrieved instructions: ${documents}`;
+          },
+        }),
+        tool({
+          name: "completeAnalysis",
+          description: "REQUIRED: Call this tool to finish your analysis. This must be your final action.",
+          parameters: z.object({
+            textType: z.string().describe("The detected text type (e.g., 'LinkedIn post', 'email', 'blog post')"),
+            tone: z.string().nullable().describe("The detected or desired tone (e.g., 'professional', 'casual', 'friendly')"),
+            purpose: z.string().nullable().describe("The purpose of the text (e.g., 'networking', 'sales', 'informational')"),
+            audience: z.string().nullable().describe("The target audience (e.g., 'professionals', 'customers', 'colleagues')"),
+            summary: z.string().describe("Brief summary of your analysis findings"),
+            recommendations: z.array(z.string()).describe("List of specific recommendations for improvement"),
+          }),
+          execute: async ({ textType, tone, purpose, audience, summary, recommendations }) => {
+            // This tool execution signals completion and provides structured data
+            const analysisData = {
+              textType,
+              tone,
+              purpose,
+              audience,
+              summary,
+              recommendations,
+            };
+            
+            // Return a special completion signal that we can detect in the text
+            return `🔄 ANALYSIS_COMPLETE_TOOL_CALL: ${JSON.stringify(analysisData)} 🔄`;
           },
         })
       ],
@@ -116,13 +127,17 @@ Retrieved instructions: ${documents}`;
 
           await stream.completed;
 
-          // Check if analysis is complete
-          if (fullResponse.includes("ANALYSIS_COMPLETE")) {
+          console.log("Analysis stream completed. Full response length:", fullResponse.length);
+          console.log("Looking for completion signal in response...");
+
+          // Check if analysis was completed via the completeAnalysis tool
+          if (fullResponse.includes("🔄 ANALYSIS_COMPLETE_TOOL_CALL:")) {
+            console.log("Found completion signal!");
             try {
-              // Extract JSON from the response
-              const jsonMatch = fullResponse.match(/ANALYSIS_COMPLETE\s*({[\s\S]*})/);  
-              if (jsonMatch) {
-                const analysisData = JSON.parse(jsonMatch[1]);
+              // Extract JSON from the tool call response
+              const toolCallMatch = fullResponse.match(/🔄 ANALYSIS_COMPLETE_TOOL_CALL: (.*?) 🔄/s);
+              if (toolCallMatch) {
+                const analysisData = JSON.parse(toolCallMatch[1]);
                 
                 // Create structured analysis result
                 const analysisResult: AnalysisResult = {
@@ -134,7 +149,7 @@ Retrieved instructions: ${documents}`;
                     purpose: analysisData.purpose || null,
                     audience: analysisData.audience || null,
                   },
-                  retrievedInstructions: analysisData.instructions || "",
+                  retrievedInstructions: analysisData.summary + "\n\nBased on the analysis above, relevant writing instructions have been retrieved from the document search.", // Use summary + note about retrieved instructions
                   recommendations: analysisData.recommendations || [],
                   readyToRewrite: true,
                   timestamp: new Date(),
@@ -150,6 +165,9 @@ Retrieved instructions: ${documents}`;
             } catch (parseError) {
               console.error("Failed to parse analysis result:", parseError);
             }
+          } else {
+            console.log("No completion signal found. Response preview:", fullResponse.substring(0, 200) + "...");
+            console.log("Agent may not have called completeAnalysis tool properly.");
           }
 
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
