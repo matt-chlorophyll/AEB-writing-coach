@@ -1,0 +1,17 @@
+export const loadingMessages = [
+  "Thinking",
+  "Analyzing sources",
+  "Searching knowledge base",
+  "Processing your request",
+  "Crafting response",
+  "Consulting the archives",
+  "Gathering insights",
+  "Connecting the dots",
+  "Diving deep",
+  "Synthesizing information",
+  "Contemplating",
+  "Researching",
+  "Formulating answer",
+  "Accessing memory banks",
+  "Computing response",
+];
