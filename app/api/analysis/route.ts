@@ -34,7 +34,16 @@ Your role is to:
    - What rewriting instructions you found
    - Specific recommendations for improvement
 
-4. **PREPARE FOR REWRITING**: Once you've completed your analysis and found relevant instructions, end your response with the exact phrase: "ANALYSIS_COMPLETE" followed immediately by a JSON object (no code blocks, no extra formatting) containing: {"textType": "detected type", "tone": "detected tone", "purpose": "detected purpose", "audience": "target audience", "instructions": "retrieved instructions summary", "recommendations": ["list", "of", "recommendations"]}
+4. **PREPARE FOR REWRITING**: Once you've completed your analysis and found relevant instructions, end your response naturally with a helpful conclusion. Then add a blank line, followed by the exact text "---ANALYSIS_DATA_START---" on its own line, then provide a JSON object containing your analysis data, then "---ANALYSIS_DATA_END---" on its own line.
+
+The JSON format should be: {"textType": "detected type", "tone": "detected tone", "purpose": "detected purpose", "audience": "target audience", "instructions": "retrieved instructions summary", "recommendations": ["list", "of", "recommendations"]}
+
+Example ending:
+"I'm ready to help you rewrite this text using these guidelines.
+
+---ANALYSIS_DATA_START---
+{"textType": "LinkedIn post", "tone": "friendly", "purpose": "networking", "audience": "professionals", "instructions": "summary of retrieved guidelines", "recommendations": ["improvement 1", "improvement 2"]}
+---ANALYSIS_DATA_END---"
 
 Important guidelines:
 - Be conversational and helpful in your explanations
@@ -107,38 +116,33 @@ Retrieved instructions: ${documents}`;
           for await (const chunk of textStream) {
             fullResponse += chunk;
             
-            // Hide ANALYSIS_COMPLETE from user display while keeping it for backend processing
-            if (!chunk.includes("ANALYSIS_COMPLETE")) {
-              // This is regular conversation content, send it to frontend
+            // Check if we've reached the analysis data section
+            if (!fullResponse.includes("---ANALYSIS_DATA_START---")) {
+              // We're still in conversation mode, send chunk to frontend
               const conversationData = `data: ${JSON.stringify({ 
                 type: "conversation",
                 content: chunk 
               })}\n\n`;
               controller.enqueue(encoder.encode(conversationData));
             }
-            // If chunk contains ANALYSIS_COMPLETE, don't send to frontend but keep in fullResponse
+            // Once we hit the data separator, stop sending chunks to frontend
+            // but continue building fullResponse for backend processing
           }
 
           await stream.completed;
 
-          // Check if analysis is complete
-          if (fullResponse.includes("ANALYSIS_COMPLETE")) {
-            console.log("Found ANALYSIS_COMPLETE marker");
+          // Check if analysis is complete using new format
+          if (fullResponse.includes("---ANALYSIS_DATA_END---")) {
+            console.log("Found analysis data markers");
             try {
-              // Extract JSON from the response - handle both with and without code blocks
-              let jsonMatch = fullResponse.match(/ANALYSIS_COMPLETE\s*({[^}]*})/);
-              if (!jsonMatch) {
-                // Try to find JSON in code blocks
-                jsonMatch = fullResponse.match(/ANALYSIS_COMPLETE[\s\S]*?```json\s*({[\s\S]*?})\s*```/);
-              }
-              if (!jsonMatch) {
-                // Try to find any JSON after ANALYSIS_COMPLETE
-                jsonMatch = fullResponse.match(/ANALYSIS_COMPLETE[\s\S]*?({[\s\S]*})/);
-              }
+              // Extract JSON from between the markers
+              const dataMatch = fullResponse.match(
+                /---ANALYSIS_DATA_START---\s*([\s\S]*?)\s*---ANALYSIS_DATA_END---/
+              );
               
-              if (jsonMatch) {
-                console.log("Found JSON match:", jsonMatch[1]);
-                const analysisData = JSON.parse(jsonMatch[1]);
+              if (dataMatch) {
+                console.log("Found analysis data:", dataMatch[1]);
+                const analysisData = JSON.parse(dataMatch[1]);
                 
                 // Create structured analysis result
                 const analysisResult: AnalysisResult = {
@@ -164,14 +168,14 @@ Retrieved instructions: ${documents}`;
                 })}\n\n`;
                 controller.enqueue(encoder.encode(completeData));
               } else {
-                console.log("No JSON found after ANALYSIS_COMPLETE");
+                console.log("No valid data found between markers");
               }
             } catch (parseError) {
               console.error("Failed to parse analysis result:", parseError);
               console.log("Full response for debugging:", fullResponse);
             }
           } else {
-            console.log("No ANALYSIS_COMPLETE found in response");
+            console.log("No analysis data markers found in response");
           }
 
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
