@@ -22,9 +22,7 @@ export default function AgentsSDKPage() {
 
   // Simple markdown parser for chat messages
   const parseMarkdown = (text: string) => {
-    console.log("Parsing markdown for text:", text.substring(0, 100) + "...");
-    
-    const result = text
+    return text
       // Headers: ### Header (do this first)
       .replace(/^### (.*$)/gm, '<h3 class="text-base font-semibold mb-2 mt-3">$1</h3>')
       .replace(/^## (.*$)/gm, '<h2 class="text-lg font-semibold mb-2 mt-3">$1</h2>')
@@ -46,9 +44,6 @@ export default function AgentsSDKPage() {
       
       // Line breaks
       .replace(/\n/g, '<br>');
-      
-    console.log("Parsed result:", result.substring(0, 100) + "...");
-    return result;
   };
 
   const handleAnalysis = async (e: React.FormEvent) => {
@@ -519,9 +514,12 @@ export default function AgentsSDKPage() {
                       <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
                       Rewritten Version
                     </div>
-                    <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed whitespace-pre-wrap">
-                      {rewriteResult.rewrittenText}
-                    </div>
+                    <div 
+                      className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
+                      dangerouslySetInnerHTML={{ 
+                        __html: parseMarkdown(rewriteResult.rewrittenText) 
+                      }}
+                    />
                   </div>
                   
                   {phase === 'complete' && rewriteResult.explanation && (
@@ -530,9 +528,12 @@ export default function AgentsSDKPage() {
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                         Explanation
                       </div>
-                      <div className="text-sm text-gray-700 leading-relaxed">
-                        {rewriteResult.explanation}
-                      </div>
+                      <div 
+                        className="text-sm text-gray-700 leading-relaxed"
+                        dangerouslySetInnerHTML={{ 
+                          __html: parseMarkdown(rewriteResult.explanation) 
+                        }}
+                      />
                     </div>
                   )}
                   
