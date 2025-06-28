@@ -20,6 +20,37 @@ export default function AgentsSDKPage() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [rewriteResult, setRewriteResult] = useState<RewriteResponse | null>(null);
 
+  // Simple markdown parser for chat messages
+  const parseMarkdown = (text: string) => {
+    console.log("Parsing markdown for text:", text.substring(0, 100) + "...");
+    
+    const result = text
+      // Headers: ### Header (do this first)
+      .replace(/^### (.*$)/gm, '<h3 class="text-base font-semibold mb-2 mt-3">$1</h3>')
+      .replace(/^## (.*$)/gm, '<h2 class="text-lg font-semibold mb-2 mt-3">$1</h2>')
+      .replace(/^# (.*$)/gm, '<h1 class="text-xl font-bold mb-2 mt-3">$1</h1>')
+      
+      // Bold: **text** or __text__ (avoid conflicts with headers)
+      .replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/__([^_]+?)__/g, '<strong>$1</strong>')
+      
+      // Numbered lists: 1. item, 2. item
+      .replace(/^(\d+)\. (.*)$/gm, '<div class="ml-4 mb-1">$1. $2</div>')
+      
+      // Bullet lists: - item or * item
+      .replace(/^[\-\*] (.*)$/gm, '<div class="ml-4 mb-1">• $1</div>')
+      
+      // Italic: *text* or _text_ (do this after lists to avoid conflicts)
+      .replace(/\*([^*]+?)\*/g, '<em>$1</em>')
+      .replace(/_([^_]+?)_/g, '<em>$1</em>')
+      
+      // Line breaks
+      .replace(/\n/g, '<br>');
+      
+    console.log("Parsed result:", result.substring(0, 100) + "...");
+    return result;
+  };
+
   const handleAnalysis = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || phase === 'analyzing') return;
@@ -347,9 +378,12 @@ export default function AgentsSDKPage() {
                       }`}>
                         {message.role === "user" ? "You" : "Analysis Agent"}
                       </div>
-                      <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                        {message.content}
-                      </div>
+                      <div 
+                        className="text-sm leading-relaxed"
+                        dangerouslySetInnerHTML={{ 
+                          __html: parseMarkdown(message.content) 
+                        }}
+                      />
                     </div>
                   </div>
                 ))
