@@ -90,6 +90,27 @@ export default function AgentsSDKPage() {
                       }
                       return newMessages;
                     });
+                  } else if (parsed.type === "cleanup_markers") {
+                    // Remove markers from the last assistant message
+                    setMessages(prev => {
+                      const newMessages = [...prev];
+                      const lastIndex = newMessages.length - 1;
+                      if (lastIndex >= 0 && newMessages[lastIndex].role === "assistant") {
+                        let cleanContent = newMessages[lastIndex].content;
+                        
+                        // Remove each marker and everything after it
+                        parsed.markers.forEach((marker: string) => {
+                          const markerRegex = new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '[\\s\\S]*', 'g');
+                          cleanContent = cleanContent.replace(markerRegex, '');
+                        });
+                        
+                        newMessages[lastIndex] = {
+                          ...newMessages[lastIndex],
+                          content: cleanContent.trim(),
+                        };
+                      }
+                      return newMessages;
+                    });
                   } else if (parsed.type === "analysis_complete") {
                     // Analysis is complete, enable rewrite button
                     setAnalysisResult(parsed.analysisResult);

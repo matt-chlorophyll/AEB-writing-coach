@@ -116,17 +116,12 @@ Retrieved instructions: ${documents}`;
           for await (const chunk of textStream) {
             fullResponse += chunk;
             
-            // Check if we've reached the analysis data section
-            if (!fullResponse.includes("---ANALYSIS_DATA_START---")) {
-              // We're still in conversation mode, send chunk to frontend
-              const conversationData = `data: ${JSON.stringify({ 
-                type: "conversation",
-                content: chunk 
-              })}\n\n`;
-              controller.enqueue(encoder.encode(conversationData));
-            }
-            // Once we hit the data separator, stop sending chunks to frontend
-            // but continue building fullResponse for backend processing
+            // Stream ALL chunks to frontend (no filtering during streaming)
+            const conversationData = `data: ${JSON.stringify({ 
+              type: "conversation",
+              content: chunk 
+            })}\n\n`;
+            controller.enqueue(encoder.encode(conversationData));
           }
 
           await stream.completed;
@@ -134,6 +129,14 @@ Retrieved instructions: ${documents}`;
           // Check if analysis is complete using new format
           if (fullResponse.includes("---ANALYSIS_DATA_END---")) {
             console.log("Found analysis data markers");
+            
+            // First, send cleanup signal to remove markers from frontend
+            const cleanupData = `data: ${JSON.stringify({ 
+              type: "cleanup_markers",
+              markers: ["---ANALYSIS_DATA_START---", "---ANALYSIS_DATA_END---"]
+            })}\n\n`;
+            controller.enqueue(encoder.encode(cleanupData));
+            
             try {
               // Extract JSON from between the markers
               const dataMatch = fullResponse.match(
