@@ -34,7 +34,7 @@ Your role is to:
    - What rewriting instructions you found
    - Specific recommendations for improvement
 
-4. **PREPARE FOR REWRITING**: Once you've completed your analysis and found relevant instructions, end your response with the exact phrase: "ANALYSIS_COMPLETE" followed by a JSON object containing the analysis results.
+4. **PREPARE FOR REWRITING**: Once you've completed your analysis and found relevant instructions, end your response with the exact phrase: "ANALYSIS_COMPLETE" followed immediately by a JSON object (no code blocks, no extra formatting) containing: {"textType": "detected type", "tone": "detected tone", "purpose": "detected purpose", "audience": "target audience", "instructions": "retrieved instructions summary", "recommendations": ["list", "of", "recommendations"]}
 
 Important guidelines:
 - Be conversational and helpful in your explanations
@@ -124,10 +124,21 @@ Retrieved instructions: ${documents}`;
 
           // Check if analysis is complete
           if (fullResponse.includes("ANALYSIS_COMPLETE")) {
+            console.log("Found ANALYSIS_COMPLETE marker");
             try {
-              // Extract JSON from the response
-              const jsonMatch = fullResponse.match(/ANALYSIS_COMPLETE\s*({[\s\S]*})/);  
+              // Extract JSON from the response - handle both with and without code blocks
+              let jsonMatch = fullResponse.match(/ANALYSIS_COMPLETE\s*({[^}]*})/);
+              if (!jsonMatch) {
+                // Try to find JSON in code blocks
+                jsonMatch = fullResponse.match(/ANALYSIS_COMPLETE[\s\S]*?```json\s*({[\s\S]*?})\s*```/);
+              }
+              if (!jsonMatch) {
+                // Try to find any JSON after ANALYSIS_COMPLETE
+                jsonMatch = fullResponse.match(/ANALYSIS_COMPLETE[\s\S]*?({[\s\S]*})/);
+              }
+              
               if (jsonMatch) {
+                console.log("Found JSON match:", jsonMatch[1]);
                 const analysisData = JSON.parse(jsonMatch[1]);
                 
                 // Create structured analysis result
@@ -146,16 +157,22 @@ Retrieved instructions: ${documents}`;
                   timestamp: new Date(),
                 };
 
+                console.log("Successfully created analysis result");
                 // Send analysis complete signal
                 const completeData = `data: ${JSON.stringify({ 
                   type: "analysis_complete",
                   analysisResult 
                 })}\n\n`;
                 controller.enqueue(encoder.encode(completeData));
+              } else {
+                console.log("No JSON found after ANALYSIS_COMPLETE");
               }
             } catch (parseError) {
               console.error("Failed to parse analysis result:", parseError);
+              console.log("Full response for debugging:", fullResponse);
             }
+          } else {
+            console.log("No ANALYSIS_COMPLETE found in response");
           }
 
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
