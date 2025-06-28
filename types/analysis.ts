@@ -52,3 +52,31 @@ export interface RewriteResponse {
     reason: string;
   }[];
 }
+
+export interface Change {
+  id: string;
+  type: 'grammar' | 'tone' | 'structure' | 'clarity' | 'conciseness' | 'impact';
+  originalPhrase: string;
+  rewrittenPhrase: string;
+  explanation: string;
+  startPos: number;
+  endPos: number;
+  importance: 'high' | 'medium' | 'low';
+}
+
+export interface ChangeAnalysisResponse {
+  changes: Change[];
+  summary: string;
+  overallImprovements: string[];
+}
+
+export interface ComparisonData {
+  originalText: string;
+  rewrittenText: string;
+  context: {
+    textType: string;
+    tone?: string;
+    purpose?: string;
+    audience?: string;
+  };
+}

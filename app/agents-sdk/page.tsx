@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import type { AnalysisResult, RewriteResponse } from "@/types/analysis";
+import { useRouter } from "next/navigation";
+import type { AnalysisResult, RewriteResponse, ComparisonData } from "@/types/analysis";
 
 interface Message {
   role: "user" | "assistant";
@@ -12,6 +13,7 @@ interface Message {
 type AppPhase = 'input' | 'analyzing' | 'ready' | 'rewriting' | 'complete';
 
 export default function AgentsSDKPage() {
+  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [phase, setPhase] = useState<AppPhase>('input');
@@ -211,6 +213,28 @@ export default function AgentsSDKPage() {
     setPhase('input');
     setAnalysisResult(null);
     setRewriteResult(null);
+  };
+
+  const handleCompareChanges = () => {
+    if (!analysisResult || !rewriteResult) return;
+
+    // Prepare data for comparison page
+    const comparisonData: ComparisonData = {
+      originalText: analysisResult.originalText,
+      rewrittenText: rewriteResult.rewrittenText,
+      context: {
+        textType: analysisResult.detectedTextType,
+        tone: analysisResult.extractedContext.tone || undefined,
+        purpose: analysisResult.extractedContext.purpose || undefined,
+        audience: analysisResult.extractedContext.audience || undefined,
+      }
+    };
+
+    // Store data in localStorage for the comparison page
+    localStorage.setItem('comparisonData', JSON.stringify(comparisonData));
+    
+    // Navigate to comparison page
+    router.push('/comparison');
   };
 
   return (
@@ -458,7 +482,16 @@ export default function AgentsSDKPage() {
                   )}
                   
                   {phase === 'complete' && (
-                    <div className="flex justify-end">
+                    <div className="flex justify-between items-center">
+                      <button
+                        onClick={handleCompareChanges}
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-700 bg-purple-100 rounded-lg hover:bg-purple-200 transition-colors duration-200"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
+                        Compare Changes
+                      </button>
                       <button
                         onClick={() => navigator.clipboard.writeText(rewriteResult.rewrittenText)}
                         className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors duration-200"
