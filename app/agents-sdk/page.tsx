@@ -286,11 +286,11 @@ export default function AgentsSDKPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-green-50">
-      <div className="container mx-auto p-4 sm:p-6 max-w-full xl:max-w-[1400px] 2xl:max-w-[1600px]">
+      <div className="container mx-auto p-3 sm:p-4 max-w-full xl:max-w-[1400px] 2xl:max-w-[1600px]">
         {/* Header Section */}
-        <div className="mb-6 lg:mb-8">
+        <div className="mb-4 lg:mb-6">
           {/* Navigation */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4">
             <Link
               href="/"
               className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg hover:bg-white transition-all duration-200 text-gray-700 font-medium"
@@ -308,11 +308,11 @@ export default function AgentsSDKPage() {
             </div>
           </div>
 
-          <div className="text-center mb-6">
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-3">
+          <div className="text-center mb-4">
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-2">
               Transform Your Writing with AI
             </h1>
-            <p className="text-base lg:text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-sm lg:text-base text-gray-600 max-w-3xl mx-auto">
               Two-step process: First I'll analyze your text to understand its type, tone, and purpose, then rewrite it with professional precision
             </p>
           </div>
@@ -335,14 +335,14 @@ export default function AgentsSDKPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6 xl:gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 lg:gap-4 xl:gap-6">
           {/* Analysis Chat Interface */}
           <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
             <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
               <h2 className="text-xl font-semibold text-white">💬 Analysis & Discussion</h2>
             </div>
             
-            <div className="h-96 lg:h-[500px] xl:h-[600px] 2xl:h-[700px] overflow-y-auto p-4 bg-gray-50">
+            <div className="h-[348px] lg:h-[380px] xl:h-[412px] 2xl:h-[476px] overflow-y-auto p-4 bg-gray-50">
               {messages.length === 0 ? (
                 <div className="text-center mt-12 text-gray-500">
                   <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
@@ -409,7 +409,7 @@ export default function AgentsSDKPage() {
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       placeholder="Paste your text here for analysis...&#10;&#10;For example:&#10;• A LinkedIn post you want to improve&#10;• An email that needs refinement&#10;• A blog post draft&#10;• Marketing copy to enhance"
-                      className="w-full h-32 lg:h-40 xl:h-48 p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm resize-none overflow-y-auto leading-relaxed"
+                      className="w-full h-64 lg:h-72 xl:h-80 2xl:h-96 p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm resize-none overflow-y-auto leading-relaxed"
                       disabled={false}
                     />
                   </div>
@@ -486,7 +486,7 @@ export default function AgentsSDKPage() {
               <h2 className="text-xl font-semibold text-white">✨ Rewritten Text</h2>
             </div>
             
-            <div className="p-4 lg:p-6 h-96 lg:h-[500px] xl:h-[600px] 2xl:h-[700px] overflow-y-auto">
+            <div className="p-4 lg:p-6 h-[348px] lg:h-[380px] xl:h-[412px] 2xl:h-[476px] overflow-y-auto">
               {!rewriteResult ? (
                 <div className="text-center mt-12 text-gray-400">
                   <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
