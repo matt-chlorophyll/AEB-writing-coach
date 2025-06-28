@@ -337,12 +337,12 @@ export default function AgentsSDKPage() {
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 lg:gap-4 xl:gap-6">
           {/* Analysis Chat Interface */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden flex flex-col h-[728px] lg:h-[780px] xl:h-[832px] 2xl:h-[956px]">
             <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
               <h2 className="text-xl font-semibold text-white">💬 Analysis & Discussion</h2>
             </div>
             
-            <div className="h-[348px] lg:h-[380px] xl:h-[412px] 2xl:h-[476px] overflow-y-auto p-4 bg-gray-50">
+            <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
               {messages.length === 0 ? (
                 <div className="text-center mt-12 text-gray-500">
                   <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
@@ -400,93 +400,96 @@ export default function AgentsSDKPage() {
               )}
             </div>
 
-            {/* Input Form */}
-            {phase === 'input' && (
-              <div className="p-4 bg-white border-t border-gray-100">
-                <form onSubmit={handleAnalysis} className="space-y-3">
-                  <div className="relative">
-                    <textarea
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      placeholder="Paste your text here for analysis...&#10;&#10;For example:&#10;• A LinkedIn post you want to improve&#10;• An email that needs refinement&#10;• A blog post draft&#10;• Marketing copy to enhance"
-                      className="w-full h-64 lg:h-72 xl:h-80 2xl:h-96 p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm resize-none overflow-y-auto leading-relaxed"
-                      disabled={false}
-                    />
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div className="text-xs text-gray-500">
-                      💡 Step 1: I'll analyze your text and find relevant writing guidelines
+            {/* Bottom Section - Consistent Height */}
+            <div className="h-80 lg:h-[340px] xl:h-[360px] 2xl:h-[420px] bg-white border-t border-gray-100">
+              {/* Input Form */}
+              {phase === 'input' && (
+                <div className="p-4 h-full flex flex-col">
+                  <form onSubmit={handleAnalysis} className="space-y-3 flex-1 flex flex-col">
+                    <div className="relative flex-1">
+                      <textarea
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="Paste your text here for analysis...&#10;&#10;For example:&#10;• A LinkedIn post you want to improve&#10;• An email that needs refinement&#10;• A blog post draft&#10;• Marketing copy to enhance"
+                        className="w-full h-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm resize-none overflow-y-auto leading-relaxed"
+                        disabled={false}
+                      />
                     </div>
-                    <button
-                      type="submit"
-                      disabled={!input.trim()}
-                      className="px-8 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium text-sm shadow-sm flex items-center gap-2"
-                    >
-                      <>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        Analyze Text
-                      </>
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
-
-            {/* Rewrite Button */}
-            {(phase === 'ready' || phase === 'rewriting' || phase === 'complete') && (
-              <div className="p-4 bg-white border-t border-gray-100">
-                <div className="flex justify-between items-center">
-                  <div className="text-xs text-gray-500">
-                    {phase === 'ready' && "✅ Analysis complete! Ready to rewrite your text."}
-                    {phase === 'rewriting' && "⚡ Rewriting in progress..."}
-                    {phase === 'complete' && "🎉 All done! Your text has been rewritten."}
-                  </div>
-                  <div className="flex gap-2">
-                    {phase === 'complete' && (
+                    <div className="flex justify-between items-center">
+                      <div className="text-xs text-gray-500">
+                        💡 Step 1: I'll analyze your text and find relevant writing guidelines
+                      </div>
                       <button
-                        onClick={resetFlow}
-                        className="px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-all duration-200 font-medium text-sm shadow-sm flex items-center gap-2"
+                        type="submit"
+                        disabled={!input.trim()}
+                        className="px-8 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium text-sm shadow-sm flex items-center gap-2"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                        Start Over
-                      </button>
-                    )}
-                    <button
-                      onClick={handleRewrite}
-                      disabled={phase === 'rewriting'}
-                      className="px-8 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium text-sm shadow-sm flex items-center gap-2"
-                    >
-                      {phase === 'rewriting' ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          Rewriting...
-                        </>
-                      ) : (
                         <>
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                           </svg>
-                          Rewrite Text
+                          Analyze Text
                         </>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* Rewrite Button */}
+              {(phase === 'ready' || phase === 'rewriting' || phase === 'complete') && (
+                <div className="p-4 h-full flex flex-col justify-end">
+                  <div className="flex justify-between items-center">
+                    <div className="text-xs text-gray-500">
+                      {phase === 'ready' && "✅ Analysis complete! Ready to rewrite your text."}
+                      {phase === 'rewriting' && "⚡ Rewriting in progress..."}
+                      {phase === 'complete' && "🎉 All done! Your text has been rewritten."}
+                    </div>
+                    <div className="flex gap-2">
+                      {phase === 'complete' && (
+                        <button
+                          onClick={resetFlow}
+                          className="px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-all duration-200 font-medium text-sm shadow-sm flex items-center gap-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                          Start Over
+                        </button>
                       )}
-                    </button>
+                      <button
+                        onClick={handleRewrite}
+                        disabled={phase === 'rewriting'}
+                        className="px-8 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium text-sm shadow-sm flex items-center gap-2"
+                      >
+                        {phase === 'rewriting' ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Rewriting...
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Rewrite Text
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Rewritten Text Output */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden flex flex-col h-[728px] lg:h-[780px] xl:h-[832px] 2xl:h-[956px]">
             <div className="bg-gradient-to-r from-gray-600 to-gray-700 px-6 py-4">
               <h2 className="text-xl font-semibold text-white">✨ Rewritten Text</h2>
             </div>
             
-            <div className="p-4 lg:p-6 h-[348px] lg:h-[380px] xl:h-[412px] 2xl:h-[476px] overflow-y-auto">
+            <div className="p-4 lg:p-6 flex-1 overflow-y-auto">
               {!rewriteResult ? (
                 <div className="text-center mt-12 text-gray-400">
                   <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
