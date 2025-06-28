@@ -113,16 +113,22 @@ Retrieved instructions: ${documents}`;
           });
 
           let fullResponse = "";
+          let displayResponse = "";
           
           for await (const chunk of textStream) {
             fullResponse += chunk;
             
-            // Stream the conversation chunk
-            const conversationData = `data: ${JSON.stringify({ 
-              type: "conversation",
-              content: chunk 
-            })}\n\n`;
-            controller.enqueue(encoder.encode(conversationData));
+            // Check if this chunk contains tool call markers
+            if (!chunk.includes("🔄 ANALYSIS_COMPLETE_TOOL_CALL:")) {
+              // This is regular conversation content, send it to frontend
+              displayResponse += chunk;
+              const conversationData = `data: ${JSON.stringify({ 
+                type: "conversation",
+                content: chunk 
+              })}\n\n`;
+              controller.enqueue(encoder.encode(conversationData));
+            }
+            // If chunk contains tool markers, don't send to frontend but keep in fullResponse
           }
 
           await stream.completed;
