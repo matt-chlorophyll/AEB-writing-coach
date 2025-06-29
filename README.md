@@ -1,23 +1,29 @@
-# RAG Next.js TypeScript Application
+# AI Writing Coach
 
-A modern **Retrieval-Augmented Generation (RAG)** chat application built with Next.js, TypeScript, and powered by OpenAI's GPT models with vector-based document retrieval using Vectorize.io.
+A sophisticated **AI-powered writing improvement platform** that analyzes your text and rewrites it with professional precision. Built with Next.js 15, TypeScript, and powered by OpenAI's advanced models with intelligent document retrieval capabilities.
 
-## 🚀 Features
+## ✨ Features
 
-- **AI-Powered Chat**: Interactive chat interface with GPT-4o-mini
-- **Document Retrieval**: RAG system that retrieves relevant context from vectorized documents
-- **Real-time Sources**: View document sources that inform AI responses
-- **Modern UI**: Clean, responsive interface built with Tailwind CSS
-- **Type Safety**: Full TypeScript implementation
+### Two-Step Writing Enhancement Process
+1. **Intelligent Analysis**: AI analyzes your text to understand its type, tone, purpose, and audience
+2. **Professional Rewriting**: Uses retrieved writing guidelines to enhance your content
+
+### Core Capabilities
+- **Smart Text Analysis**: Automatically detects text type (emails, blog posts, marketing copy, etc.)
+- **Context Understanding**: Extracts tone, purpose, and target audience
+- **RAG-Enhanced Rewriting**: Retrieves relevant writing guidelines from a curated knowledge base
+- **Real-time Streaming**: Watch your text being improved in real-time
+- **Change Comparison**: Side-by-side view of original vs. rewritten text
+- **Multiple UI Patterns**: Both traditional RAG chat and advanced OpenAI Agents SDK implementation
 
 ## 🛠️ Tech Stack
 
 - **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
-- **AI/ML**: OpenAI GPT-4o-mini, AI SDK
-- **Vector Database**: Vectorize.io
-- **Styling**: Tailwind CSS
-- **Icons**: Lucide React
+- **Language**: TypeScript with strict mode
+- **AI/ML**: OpenAI GPT models via AI SDK, OpenAI Agents SDK
+- **Vector Search**: Vectorize.io for RAG capabilities
+- **Styling**: Tailwind CSS with custom components
+- **Package Manager**: pnpm
 
 ## 📋 Prerequisites
 
@@ -38,14 +44,13 @@ Before setting up this project, you'll need:
 
 2. **Set up environment variables**
 
-   Create a `.env.local` file in the root directory of your project:
+   Create a `.env.local` file in the root directory:
 
    ```bash
-   # Create the file (from project root)
    touch .env.local
    ```
 
-   Open the file in your editor and add the following variables:
+   Add the following variables:
 
    ```env
    # OpenAI Configuration
@@ -57,57 +62,20 @@ Before setting up this project, you'll need:
    VECTORIZE_PIPELINE_ID=your_vectorize_pipeline_id_here
    ```
 
-   **Important**: The `.env.local` file is automatically ignored by git, keeping your API keys secure.
-
 ## 🔑 Environment Variables Setup
 
 ### OpenAI API Key
 
 1. Visit [OpenAI Platform](https://platform.openai.com/api-keys)
-2. Sign in or create an account
-3. Click "Create new secret key"
-4. Give your key a name (e.g., "rag-next-app")
-5. Copy the generated key immediately (you won't see it again!)
-6. In your `.env.local` file, replace `your_openai_api_key_here` with your actual key:
-   ```env
-   OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxx
-   ```
+2. Create a new secret key
+3. Copy the key and add it to your `.env.local`
 
 ### Vectorize.io Configuration
 
 1. Sign up at [Vectorize.io](https://vectorize.io)
-2. Create a new organization
-3. Navigate to your organization settings
-4. Create a new pipeline:
-   - Choose "Document Retrieval" as the pipeline type
-   - Configure your pipeline settings
-   - Save the pipeline
-5. Generate an access token:
-   - Go to "API Tokens" in your organization settings
-   - Create a new token with "Retrieval Access" permissions
-   - Copy the token
-6. From your Vectorize dashboard, copy these values to your `.env.local`:
-   ```env
-   VECTORIZE_PIPELINE_ACCESS_TOKEN=eyJhbGciOi... (your full token)
-   VECTORIZE_ORGANIZATION_ID=527d9a27-c34a-4d0a-8fde-... (your org ID)
-   VECTORIZE_PIPELINE_ID=aip0c318-344a-4721-a9e7-... (your pipeline ID)
-   ```
-
-### Verifying Your Setup
-
-After adding all environment variables, your `.env.local` file should look similar to this:
-
-```env
-# OpenAI Configuration
-OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxx
-
-# Vectorize.io Configuration
-VECTORIZE_PIPELINE_ACCESS_TOKEN=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
-VECTORIZE_ORGANIZATION_ID=527d9a27-c34a-4d0a-8fde-1129a57eb5b8
-VECTORIZE_PIPELINE_ID=aip0c318-344a-4721-a9e7-5526c96d9b49
-```
-
-**Note**: Never commit your `.env.local` file to version control!
+2. Create a new organization and pipeline
+3. Generate an access token with retrieval permissions
+4. Copy the organization ID, pipeline ID, and access token to your `.env.local`
 
 ## 🚀 Getting Started
 
@@ -121,20 +89,32 @@ VECTORIZE_PIPELINE_ID=aip0c318-344a-4721-a9e7-5526c96d9b49
 
    Navigate to [http://localhost:3000](http://localhost:3000)
 
-3. **Test the application**
-   - Visit the main page to see the Next.js welcome screen
-   - Go to `/vectorize` to access the RAG chat interface
-   - Start asking questions about your vectorized documents
+3. **Explore the features**
+   - **Home Page**: Overview of available writing tools
+   - **Traditional RAG Chat** (`/vectorize`): Simple document-based chat
+   - **AI Writing Coach** (`/agents-sdk`): Advanced text analysis and rewriting
+   - **Comparison View** (`/comparison`): Side-by-side text comparison
 
 ## 🏗️ Application Architecture
 
-### Sequence Diagram
+### AI Implementation Patterns
 
-The following sequence diagram illustrates the complete interaction flow for both RAG Chat and Agent Chat functionalities:
+The application implements two distinct AI chat patterns:
 
-![Sequence Diagram](./sequence_diagram.png)
+1. **Traditional RAG Chat** (`/vectorize`, `/api/chat`)
+   - Single-turn document retrieval + generation
+   - Uses `generateText()` from AI SDK
+   - Structured response with sources
 
-*This diagram shows the step-by-step interactions between users, frontend components, API endpoints, services, and external APIs for both RAG and Agent chat flows.*
+2. **OpenAI Agents SDK** (`/agents-sdk`, `/api/agents-sdk`)
+   - Advanced agent with specialized rewriting capabilities
+   - Document search with enhanced context (text type, tone, purpose, audience)
+   - Server-sent events streaming
+
+### Key Services
+
+- **RetrievalService** (`lib/retrieval.ts`): Orchestrates document retrieval with context enhancement
+- **VectorizeService** (`lib/vectorize.ts`): Direct integration with Vectorize.io API
 
 ### Architecture Overview
 
@@ -144,46 +124,39 @@ The following sequence diagram illustrates the complete interaction flow for bot
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐         │
 │  │   / (Home)      │    │  /vectorize     │    │ /agents-sdk     │         │
-│  │   page.tsx      │    │   page.tsx      │    │   page.tsx      │         │
+│  │   Landing Page  │    │   RAG Chat      │    │ Writing Coach   │         │
 │  └─────────────────┘    └─────────────────┘    └─────────────────┘         │
 │                          │                     │                           │
 │                          ▼                     ▼                           │
 │                    ┌─────────────────┐    ┌─────────────────┐               │
-│                    │   chat.tsx      │    │ Custom Rewriter │               │
-│                    │ (RAG Chat UI)   │    │ UI (Inline)     │               │
+│                    │   chat.tsx      │    │ agent-chat.tsx  │               │
+│                    │ (RAG Chat UI)   │    │ (Writing Coach) │               │
 │                    └─────────────────┘    └─────────────────┘               │
 │                          │                     │                           │
-│                          │                     │                           │
-│                    ┌─────────────────┐          │                           │
-│                    │sources-display  │          │                           │
-│                    │     .tsx        │          │                           │
-│                    └─────────────────┘          │                           │
+│                    ┌─────────────────┐    ┌─────────────────┐               │
+│                    │sources-display  │    │/comparison      │               │
+│                    │     .tsx        │    │   page.tsx      │               │
+│                    └─────────────────┘    └─────────────────┘               │
 └─────────────────────────────────────────────────────────────────────────────┘
                              │                     │
                              ▼                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                              API LAYER                                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│          ┌─────────────────┐                  ┌─────────────────┐           │
-│          │  /api/chat      │                  │/api/agents-sdk  │           │
-│          │   route.ts      │                  │   route.ts      │           │
-│          │ (RAG Endpoint)  │                  │(Agents Endpoint)│           │
-│          └─────────────────┘                  └─────────────────┘           │
-│                    │                                   │                    │
-│                    │                                   │                    │
-│                    ▼                                   ▼                    │
-│          ┌─────────────────┐                  ┌─────────────────┐           │
-│          │ generateText()  │                  │ streamText()    │           │
-│          │ (Single Call)   │                  │ (Multi-Step)    │           │
-│          └─────────────────┘                  └─────────────────┘           │
-│                                                         │                    │
-│                                               ┌─────────┴─────────┐         │
-│                                               │     AGENT TOOLS    │         │
-│                                               ├───────────────────┤         │
-│                                               │ • getLocation()   │         │
-│                                               │ • getWeather()    │         │
-│                                               │ • searchDocuments │         │
-│                                               └─────────────────────┘        │
+│    ┌─────────────────┐              ┌─────────────────┐                     │
+│    │  /api/chat      │              │/api/agents-sdk  │                     │
+│    │   route.ts      │              │   route.ts      │                     │
+│    │ (RAG Endpoint)  │              │(Analysis Flow)  │                     │
+│    └─────────────────┘              └─────────────────┘                     │
+│              │                               │                              │
+│              │                   ┌───────────┼───────────┐                  │
+│              │                   │           │           │                  │
+│              ▼                   ▼           ▼           ▼                  │
+│    ┌─────────────────┐   ┌─────────────┐ ┌──────────┐ ┌──────────┐         │
+│    │ generateText()  │   │/api/analysis│ │/api/     │ │/api/     │         │
+│    │ (Single Call)   │   │   route.ts  │ │rewrite   │ │analyze-  │         │
+│    └─────────────────┘   └─────────────┘ └──────────┘ │changes   │         │
+│                                                       └──────────┘         │
 └─────────────────────────────────────────────────────────────────────────────┘
                              │                           │
                              ▼                           ▼
@@ -200,11 +173,6 @@ The following sequence diagram illustrates the complete interaction flow for bot
 │                    │ VectorizeService│                                   │ │
 │                    │ (/lib/vectorize)│                                   │ │
 │                    └─────────────────┘                                   │ │
-│                                                                          │ │
-│         ┌─────────────────┐    ┌─────────────────┐                       │ │
-│         │ /lib/utils.ts   │    │ /lib/consts.ts  │                       │ │
-│         │ (Utilities)     │    │ (Constants)     │                       │ │
-│         └─────────────────┘    └─────────────────┘                       │ │
 └─────────────────────────────────────────────────────────────────────────────┘
                              │                                           │
                              ▼                                           │
@@ -216,49 +184,29 @@ The following sequence diagram illustrates the complete interaction flow for bot
 │    │                 │              │                 │                   │
 │    │ • GPT-4o        │              │ • Document      │                   │
 │    │ • GPT-4o-mini   │              │   Retrieval     │                   │
-│    │ • Text          │              │ • Vector Search │                   │
-│    │   Generation    │              │ • Embeddings    │                   │
-│    └─────────────────┘              └─────────────────┘                   │
-│             ▲                                 ▲                           │
-│             │                                 │                           │
-│    ┌─────────────────┐              ┌─────────────────┐                   │
-│    │ OPENAI_API_KEY  │              │ VECTORIZE_*     │                   │
-│    │                 │              │ ENV VARIABLES   │                   │
+│    │ • Text Analysis │              │ • Vector Search │                   │
+│    │ • Rewriting     │              │ • Writing Guide │                   │
 │    └─────────────────┘              └─────────────────┘                   │
 └─────────────────────────────────────────────────────────────────────────────┘
-
- DATA FLOW:
- ┌─────────────────────────────────────────────────────────────────────────────┐
- │ RAG CHAT FLOW:                                                             │
- │ User Input → /api/chat → RetrievalService → VectorizeService → Documents    │
- │           ↓                                                                │
- │ OpenAI API ← Context + Messages ← Formatted Documents ← Vectorize.io       │
- │           ↓                                                                │
- │ Response + Sources → Chat UI                                               │
- │                                                                            │
- │ AGENTS SDK FLOW:                                                           │
- │ User Input → /api/agents-sdk → Text Type Detection → Document Search       │
- │           ↓                                                                │
- │ Tools: searchDocuments(query, textType, tone, purpose, audience)           │
- │           ↓                                                                │
- │ Streaming Response → Rewriter UI                                           │
- └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## 📁 Project Structure
 
 ```
-rag-next-typescript/
+ai-writing-coach/
 ├── app/
-│   ├── agents-sdk/        # OpenAI Agents SDK rewriter interface
-│   │   └── page.tsx       # Main rewriter page
+│   ├── agents-sdk/        # AI Writing Coach interface
+│   │   └── page.tsx       # Main writing coach page
 │   ├── api/
-│   │   ├── agents-sdk/    # Agents SDK API with document search
-│   │   │   └── route.ts   # Streaming agents endpoint
+│   │   ├── agents-sdk/    # Analysis endpoint
+│   │   ├── analysis/      # Text analysis API
+│   │   ├── rewrite/       # Text rewriting API
+│   │   ├── analyze-changes/  # Change analysis API
 │   │   └── chat/          # Traditional RAG chat API
-│   │       └── route.ts   # Single-turn RAG endpoint
+│   ├── comparison/        # Text comparison interface
+│   │   └── page.tsx       # Side-by-side comparison
 │   ├── vectorize/         # RAG chat interface
-│   │   └── page.tsx       # Vectorize chat page
+│   │   └── page.tsx       # Traditional chat page
 │   ├── globals.css        # Global styles
 │   ├── layout.tsx         # Root layout
 │   └── page.tsx          # Home page
@@ -266,79 +214,84 @@ rag-next-typescript/
 │   ├── chat.tsx          # RAG chat component
 │   └── sources-display.tsx # Document sources display
 ├── lib/
-│   ├── consts.ts         # Constants and loading messages
+│   ├── consts.ts         # Constants and configurations
 │   ├── retrieval.ts      # Document retrieval service
 │   ├── utils.ts          # Utility functions
 │   └── vectorize.ts      # Vectorize.io API integration
 ├── types/
+│   ├── analysis.ts       # Analysis and rewriting types
 │   ├── chat.ts           # Chat-related types
 │   └── vectorize.ts      # Vectorize API types
 └── .env.local           # Environment variables
 ```
 
-## 🔄 How It Works
+## 🎯 How It Works
 
-1. **User Input**: User types a question in the chat interface
-2. **Document Retrieval**: The system queries Vectorize.io to find relevant documents
-3. **Context Formation**: Retrieved documents are formatted as context
-4. **AI Generation**: OpenAI GPT-4o-mini generates a response using the context
-5. **Response Display**: The answer is shown with source documents for transparency
+### AI Writing Coach Flow
 
-## 🎯 Usage
+1. **Text Input**: User pastes their text for improvement
+2. **Intelligent Analysis**: AI analyzes text type, tone, purpose, and audience
+3. **Guideline Retrieval**: System searches for relevant writing guidelines
+4. **Professional Rewriting**: AI rewrites text using retrieved best practices
+5. **Change Comparison**: User can view original vs. improved text side-by-side
 
-### Chat Interface
+### Traditional RAG Flow
 
-- Navigate to `/vectorize` for the main chat interface
-- Type questions related to your vectorized documents
-- View source documents that informed each AI response
-- Enjoy real-time loading animations and smooth interactions
+1. **Question Input**: User asks questions about documents
+2. **Document Retrieval**: System queries vectorized knowledge base
+3. **Context Formation**: Retrieved documents provide context
+4. **AI Response**: GPT generates answer with source citations
 
-### Adding Documents
+## 🎨 User Interface Features
 
-To add documents to your vector database, you'll need to use the Vectorize.io platform or API to upload and process your documents before they can be retrieved by this application.
+- **Responsive Design**: Works seamlessly on desktop and mobile
+- **Real-time Streaming**: Watch text being generated in real-time
+- **Dynamic Layout**: Chat interface expands when generating responses
+- **Loading Animations**: Smooth animations during processing
+- **Error Handling**: Graceful error messages and recovery
+- **Accessibility**: Screen reader friendly with proper ARIA labels
 
 ## 🛠️ Available Scripts
 
 - `pnpm dev` - Start development server with Turbopack
 - `pnpm build` - Build the application for production
 - `pnpm start` - Start the production server
-- `pnpm lint` - Run ESLint
+- `pnpm lint` - Run ESLint for code quality
 
 ## 🔍 Troubleshooting
 
 ### Common Issues
 
 1. **Missing Environment Variables**
-
    - Ensure all required environment variables are set in `.env.local`
    - Check that your API keys are valid and have proper permissions
 
 2. **Vectorize Connection Issues**
-
    - Verify your Vectorize.io credentials
-   - Ensure your pipeline is properly configured and has documents
+   - Ensure your pipeline has writing guidelines documents
 
 3. **OpenAI API Errors**
    - Check your OpenAI API key validity
    - Ensure you have sufficient credits/quota
 
-### Error Messages
-
-- `Failed to retrieve documents from Vectorize` - Check Vectorize.io configuration
-- `Failed to process chat` - Usually indicates OpenAI API issues
-
 ## 📖 Learn More
 
-### Next.js Resources
+### Documentation
 
 - [Next.js Documentation](https://nextjs.org/docs)
-- [Learn Next.js](https://nextjs.org/learn)
-
-### AI & RAG Resources
-
 - [OpenAI API Documentation](https://platform.openai.com/docs)
 - [Vectorize.io Documentation](https://vectorize.io/docs)
 - [AI SDK Documentation](https://sdk.vercel.ai)
+
+### AI Agent Engineering
+
+This project demonstrates several key concepts from AI agent engineering:
+
+- **Multi-step reasoning**: Analysis → Retrieval → Rewriting
+- **Tool usage**: Document search with contextual parameters
+- **Streaming responses**: Real-time user feedback
+- **Context management**: Maintaining conversation state
+- **Error handling**: Graceful degradation and recovery
 
 ## 🚀 Deployment
 
@@ -349,6 +302,16 @@ To add documents to your vector database, you'll need to use the Vectorize.io pl
 3. Add your environment variables in the Vercel dashboard
 4. Deploy automatically on every push
 
+## 🎓 Educational Context
+
+This project was developed as part of an AI Agent Engineering Bootcamp, showcasing:
+
+- Advanced AI application patterns
+- RAG (Retrieval-Augmented Generation) implementation
+- OpenAI Agents SDK integration
+- Real-world UI/UX considerations
+- Production-ready TypeScript/Next.js development
+
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -356,3 +319,7 @@ To add documents to your vector database, you'll need to use the Vectorize.io pl
 3. Make your changes
 4. Run tests and linting
 5. Submit a pull request
+
+---
+
+**Built with ❤️ for AI Agent Engineering Bootcamp**
