@@ -342,66 +342,76 @@ export default function AgentsSDKPage() {
               <h2 className="text-xl font-semibold text-white">💬 Analysis & Discussion</h2>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+            <div className="flex-1 min-h-0 bg-gray-50 flex flex-col">
               {messages.length === 0 ? (
-                <div className="text-center mt-12 text-gray-500">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl">🔍</span>
+                <div className="flex-1 flex items-center justify-center p-4">
+                  <div className="text-center text-gray-500">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                      <span className="text-2xl">🔍</span>
+                    </div>
+                    <p className="text-lg font-medium text-gray-700 mb-2">Ready to analyze your text!</p>
+                    <p className="text-sm text-gray-600 max-w-xs mx-auto">
+                      Share your text and I'll help analyze what type it is and find the best rewriting approach
+                    </p>
                   </div>
-                  <p className="text-lg font-medium text-gray-700 mb-2">Ready to analyze your text!</p>
-                  <p className="text-sm text-gray-600 max-w-xs mx-auto">
-                    Share your text and I'll help analyze what type it is and find the best rewriting approach
-                  </p>
                 </div>
               ) : (
-                messages.map((message, index) => (
-                  <div
-                    key={index}
-                    className={`mb-4 ${
-                      message.role === "user" ? "flex justify-end" : "flex justify-start"
-                    }`}
-                  >
-                    <div
-                      className={`max-w-xs lg:max-w-md xl:max-w-lg 2xl:max-w-xl p-4 rounded-2xl shadow-sm ${
-                        message.role === "user"
-                          ? "bg-green-500 text-white rounded-br-md"
-                          : "bg-white border border-gray-200 rounded-bl-md"
-                      }`}
-                    >
-                      <div className={`text-xs font-medium mb-2 ${
-                        message.role === "user" ? "text-green-100" : "text-gray-500"
-                      }`}>
-                        {message.role === "user" ? "You" : "Analysis Agent"}
+                <div className="flex-1 overflow-y-auto p-4">
+                  <div className="space-y-4">
+                    {messages.map((message, index) => (
+                      <div
+                        key={index}
+                        className={`${
+                          message.role === "user" ? "flex justify-end" : "flex justify-start"
+                        }`}
+                      >
+                        <div
+                          className={`max-w-xs lg:max-w-md xl:max-w-lg 2xl:max-w-xl p-4 rounded-2xl shadow-sm ${
+                            message.role === "user"
+                              ? "bg-green-500 text-white rounded-br-md"
+                              : "bg-white border border-gray-200 rounded-bl-md"
+                          }`}
+                        >
+                          <div className={`text-xs font-medium mb-2 ${
+                            message.role === "user" ? "text-green-100" : "text-gray-500"
+                          }`}>
+                            {message.role === "user" ? "You" : "Analysis Agent"}
+                          </div>
+                          <div 
+                            className="text-sm leading-relaxed"
+                            dangerouslySetInnerHTML={{ 
+                              __html: parseMarkdown(message.content) 
+                            }}
+                          />
+                        </div>
                       </div>
-                      <div 
-                        className="text-sm leading-relaxed"
-                        dangerouslySetInnerHTML={{ 
-                          __html: parseMarkdown(message.content) 
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))
-              )}
-              {phase === 'analyzing' && (
-                <div className="flex justify-start mb-4">
-                  <div className="bg-white border border-gray-200 p-4 rounded-2xl rounded-bl-md shadow-sm max-w-xs">
-                    <div className="text-xs font-medium text-gray-500 mb-2">Analysis Agent</div>
-                    <div className="flex items-center gap-2 text-gray-500">
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                        <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                    ))}
+                    {phase === 'analyzing' && (
+                      <div className="flex justify-start">
+                        <div className="bg-white border border-gray-200 p-4 rounded-2xl rounded-bl-md shadow-sm max-w-xs">
+                          <div className="text-xs font-medium text-gray-500 mb-2">Analysis Agent</div>
+                          <div className="flex items-center gap-2 text-gray-500">
+                            <div className="flex gap-1">
+                              <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce"></div>
+                              <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                              <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                            </div>
+                            <span className="text-sm">Analyzing your text...</span>
+                          </div>
+                        </div>
                       </div>
-                      <span className="text-sm">Analyzing your text...</span>
-                    </div>
+                    )}
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Bottom Section - Consistent Height */}
-            <div className="h-80 lg:h-[340px] xl:h-[360px] 2xl:h-[420px] bg-white border-t border-gray-100">
+            {/* Bottom Section - Dynamic Height */}
+            <div className={`${
+              phase === 'input' 
+                ? 'h-80 lg:h-[340px] xl:h-[360px] 2xl:h-[420px]' 
+                : 'h-20 lg:h-24 xl:h-28'
+            } bg-white border-t border-gray-100`}>
               {/* Input Form */}
               {phase === 'input' && (
                 <div className="p-4 h-full flex flex-col">
@@ -438,7 +448,7 @@ export default function AgentsSDKPage() {
 
               {/* Rewrite Button */}
               {(phase === 'ready' || phase === 'rewriting' || phase === 'complete') && (
-                <div className="p-4 h-full flex flex-col justify-end">
+                <div className="p-4 flex flex-col justify-center">
                   <div className="flex justify-between items-center">
                     <div className="text-xs text-gray-500">
                       {phase === 'ready' && "✅ Analysis complete! Ready to rewrite your text."}
